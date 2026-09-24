@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ImageShrink — Client-Side Image Resizer & Compressor</title>
+  <meta name="description" content="Compress, resize to 1200x628 and convert images to JPEG locally in your browser. 100% private with no server uploads." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='18' height='18' x='3' y='3' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'/></svg>" />
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Main Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="M12 12v9"></path>
+            <path d="m8 17 4 4 4-4"></path>
+          </svg>
+        </div>
+        <h1 class="brand-title">ImageShrink</h1>
+      </div>
+      <p class="brand-subtitle">Compress, resize and convert your images in seconds.</p>
+      <div class="privacy-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Your images are processed locally and never uploaded.</span>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <!-- Error Alert -->
+      <div id="errorBanner" class="alert-banner hidden" role="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span id="errorMessage">We couldn't process this image. Please try another file.</span>
+        <button id="errorCloseBtn" class="alert-close" aria-label="Dismiss error">&times;</button>
+      </div>
+
+      <!-- Upload Section -->
+      <section class="upload-section">
+        <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Upload an image">
+          <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/*" class="file-input" />
+          <div class="drop-zone-content">
+            <div class="drop-zone-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                <circle cx="9" cy="9" r="2"></circle>
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+              </svg>
+            </div>
+            <div class="drop-zone-text-group">
+              <span class="drop-zone-title">Drop your image here</span>
+              <span class="drop-zone-subtitle">or click to browse</span>
+            </div>
+            <span class="drop-zone-badge">JPG, PNG, WEBP and screenshots supported</span>
+            <span class="drop-zone-tip">💡 Tip: You can also paste directly from your clipboard (Ctrl + V)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pre-Optimization Live Information Panel -->
+      <section id="liveInfoPanel" class="live-info-panel hidden">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <h2>Image information</h2>
+          </div>
+          <span id="liveFilenameChip" class="chip-filename">image.png</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Original size</span>
+            <span id="liveOriginalSize" class="stat-value">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Original dimensions</span>
+            <span id="liveOriginalDims" class="stat-value">—</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Output</span>
+            <span class="stat-value highlight-badge">1200 × 628 JPEG</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Target</span>
+            <span id="liveTargetSize" class="stat-value">500 KB</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings Panel -->
+      <section id="settingsPanel" class="settings-panel hidden">
+        <!-- Output Format & Dimensions Banner -->
+        <div class="fixed-specs-row">
+          <div class="spec-item">
+            <span class="spec-label">Output format</span>
+            <span class="spec-value lock-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              JPEG
+            </span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Output dimensions</span>
+            <span class="spec-value lock-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              1200 × 628 px
+            </span>
+          </div>
+        </div>
+
+        <!-- Resize Mode Selector -->
+        <div class="setting-group">
+          <label class="setting-title">Resize mode</label>
+          <div class="resize-options-grid">
+            <label class="option-card" for="modeCrop">
+              <input type="radio" name="resizeMode" id="modeCrop" value="crop" checked />
+              <div class="option-card-body">
+                <div class="option-header">
+                  <span class="option-name">Crop</span>
+                  <span class="badge-default">Default</span>
+                </div>
+                <p class="option-desc">Fill complete 1200 × 628 canvas. Preserves aspect ratio with centered crop.</p>
+              </div>
+            </label>
+
+            <label class="option-card" for="modeFit">
+              <input type="radio" name="resizeMode" id="modeFit" value="fit" />
+              <div class="option-card-body">
+                <div class="option-header">
+                  <span class="option-name">Fit</span>
+                </div>
+                <p class="option-desc">Preserve entire image without cropping. Adds clean white background letterbox.</p>
+              </div>
+            </label>
+
+            <label class="option-card" for="modeStretch">
+              <input type="radio" name="resizeMode" id="modeStretch" value="stretch" />
+              <div class="option-card-body">
+                <div class="option-header">
+                  <span class="option-name">Stretch</span>
+                </div>
+                <p class="option-desc">Force image to exactly 1200 × 628. Does not preserve aspect ratio.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Target File Size Selector -->
+        <div class="setting-group">
+          <div class="setting-title-row">
+            <label class="setting-title">Target file size</label>
+            <span class="setting-subtitle">Iteratively compresses JPEG quality to meet your target</span>
+          </div>
+          <div class="presets-row">
+            <button type="button" class="preset-btn" data-size="1000">Under 1 MB</button>
+            <button type="button" class="preset-btn active" data-size="500">Under 500 KB</button>
+            <button type="button" class="preset-btn" data-size="300">Under 300 KB</button>
+            <button type="button" class="preset-btn" data-size="200">Under 200 KB</button>
+            <button type="button" class="preset-btn" id="customPresetBtn">Custom</button>
+          </div>
+          <div id="customSizeContainer" class="custom-size-row hidden">
+            <label for="customSizeInput" class="custom-label">Custom target (KB):</label>
+            <div class="custom-input-group">
+              <input type="number" id="customSizeInput" min="50" max="10000" step="10" placeholder="e.g. 450" />
+              <span class="input-unit">KB</span>
+            </div>
+            <button type="button" id="applyCustomSizeBtn" class="btn-secondary-sm">Apply</button>
+          </div>
+        </div>
+
+        <!-- Optimize Action Button -->
+        <div class="action-row">
+          <button type="button" id="optimizeBtn" class="btn-primary-lg">
+            <span class="btn-content">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path>
+              </svg>
+              <span>Optimize Image</span>
+            </span>
+            <span class="btn-loading hidden">
+              <span class="spinner"></span>
+              <span>Optimizing image...</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Before / After Results Section -->
+      <section id="resultsSection" class="results-section hidden">
+        <!-- Prominent Size Reduction Callout -->
+        <div class="savings-banner">
+          <div class="savings-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span id="savingsPercentage">84.6% smaller</span>
+          </div>
+          <div class="savings-details">
+            <span id="savingsTransition">2.84 MB → 438 KB</span>
+            <span id="savingsSubtext" class="savings-subtext">Optimized to 1200 × 628 JPEG</span>
+          </div>
+        </div>
+
+        <!-- Closest Achieved Notification (if requested target was mathematically too aggressive) -->
+        <div id="closestAchievedNotice" class="info-notice hidden">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>The requested file size is extremely small. The closest achievable size was produced to preserve visual quality.</span>
+        </div>
+
+        <!-- Before / After Cards Grid -->
+        <div class="comparison-grid">
+          <!-- Original Card -->
+          <div class="card comparison-card">
+            <div class="card-header">
+              <h3 class="card-title">Original</h3>
+              <span id="originalTypeBadge" class="format-pill">PNG</span>
+            </div>
+            <div class="preview-box">
+              <img id="originalPreviewImg" alt="Original upload preview" />
+            </div>
+            <div class="card-meta-list">
+              <div class="meta-row">
+                <span class="meta-name">Filename</span>
+                <span id="originalFilenameText" class="meta-val truncate">Screenshot.png</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-name">Dimensions</span>
+                <span id="originalDimsText" class="meta-val">1920 × 1080</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-name">File size</span>
+                <span id="originalSizeText" class="meta-val font-semibold">2.84 MB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optimized Card -->
+          <div class="card comparison-card card-optimized">
+            <div class="card-header">
+              <div class="header-with-badge">
+                <h3 class="card-title">Optimized</h3>
+                <span class="ready-badge">Ready</span>
+              </div>
+              <span class="format-pill highlight">JPEG</span>
+            </div>
+            <div class="preview-box">
+              <img id="optimizedPreviewImg" alt="Optimized 1200x628 JPEG preview" />
+            </div>
+            <div class="card-meta-list">
+              <div class="meta-row">
+                <span class="meta-name">Filename</span>
+                <span id="optimizedFilenameText" class="meta-val truncate">Screenshot-optimized.jpg</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-name">Dimensions</span>
+                <span id="optimizedDimsText" class="meta-val highlight-val">1200 × 628</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-name">File size</span>
+                <span id="optimizedSizeText" class="meta-val font-semibold highlight-val">438 KB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="results-actions">
+          <button type="button" id="downloadBtn" class="btn-download-lg">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download Optimized JPG</span>
+          </button>
+          <button type="button" id="resetBtn" class="btn-reset">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span>Optimize another image</span>
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Prominent Privacy Footer -->
+    <footer class="app-footer">
+      <div class="privacy-guarantee">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span class="privacy-guarantee-text">Your images stay on your device. Nothing is uploaded to a server.</span>
+      </div>
+      <div class="footer-note">
+        <span>Runs entirely in your web browser with HTML5 Canvas client-side technology.</span>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
