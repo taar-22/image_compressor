@@ -116,4 +116,4 @@ This project was created to solve a practical publishing requirement: preparing 
 
 Rather than manually resizing and compressing each image, the tool provides a simple workflow for generating standardized, web-ready featured images.
 
-## Author
+
