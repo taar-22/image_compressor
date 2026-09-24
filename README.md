@@ -1,4 +1,4 @@
-# ImageShrink ⚡
+# ImageShrink 
 
 ImageShrink is a modern, client-side web application that resizes, converts, and compresses images into web-ready **1200 × 628 JPEG** files directly in your browser.
 
