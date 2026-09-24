@@ -1,119 +1,34 @@
-# Entamizh Image Optimizer
+# ImageShrink ⚡
 
-A web-based image optimization tool built for **Entamizh.com**, a Malaysian Indian news platform. The application resizes and compresses uploaded images into a standardized **1200 × 628 px** format for use as WordPress featured images.
+ImageShrink is a modern, client-side web application that resizes, converts, and compresses images into web-ready **1200 × 628 JPEG** files directly in your browser.
 
-## Overview
+>  100% Client-Side Privacy: Your images stay entirely on your device and are never uploaded to any remote server or external API.
 
-News websites often receive images in different dimensions and file sizes. This tool simplifies the image preparation process by automatically converting uploaded images into a consistent format suitable for publishing.
+---
 
-The application:
+##  Features
 
-* Accepts image uploads
-* Resizes images to **1200 × 628 pixels**
-* Compresses images to reduce file size
-* Produces publication-ready images for WordPress
-* Helps streamline the editorial image-preparation workflow
+- **Standardized Dimensions**: Automatically resizes/crops to exact **1200 × 628 pixels** (ideal for social cards, banners, and web heroes).
+- **Format Conversion**: Converts PNG, WEBP, GIF, BMP, and screenshots to optimized **JPEG** with automatic white background fill for transparency.
+- **Three Resize Modes**:
+  - **Crop (Default)**: Fills 1200 × 628 while preserving aspect ratio with centered crop.
+  - **Fit**: Preserves entire image without cropping, adding a clean white letterbox.
+  - **Stretch**: Direct scale to 1200 × 628 without preserving aspect ratio.
+- **Smart Iterative Compression**:
+  - Binary search algorithm on JPEG quality to reach your target file size without unnecessary degradation.
+  - Target presets: **Under 1 MB**, **Under 500 KB (Default)**, **Under 300 KB**, **Under 200 KB**, or **Custom KB**.
+- **Live Pre-Optimization Panel**: Shows original dimensions, file size, target size, and fixed 1200 × 628 JPEG output spec.
+- **Before / After Comparison**:
+  - High-DPI preview cards.
+  - Prominent percentage reduction callout (e.g. `78.8% smaller`, `505 KB → 107 KB`).
+- **Direct Download**: Triggers genuine `.jpg` file download (`[name]-optimized.jpg`) with valid JPEG headers.
+- **Convenient Inputs**: Supports drag-and-drop, native file picker, and clipboard paste (`Ctrl + V`).
 
-## Built For
+---
 
-**entamizh.com** — a Malaysian Indian news platform.
+##  Running Locally
 
-The tool was developed to support the site's editorial workflow and is currently used for preparing featured images for news articles.
-
-## Features
-
-* Image upload
-* Automatic resizing to 1200 × 628 px
-* Image compression
-* Optimized output for web publishing
-* Simple and lightweight interface
-* Suitable for WordPress featured images
-
-## Tech Stack
-
-* [Add your actual frontend technology here]
-* [Add your actual backend technology here]
-* Image processing library/API: [Add if applicable]
-
-## How It Works
-
-```text
-Upload Image
-     ↓
-Image Processing
-     ↓
-Resize to 1200 × 628 px
-     ↓
-Compress Image
-     ↓
-Download Optimized Image
-```
-
-## Running Locally
-
-### 1. Clone the repository
-
+### Development Server
 ```bash
-git clone <your-github-repository-url>
-cd <project-folder>
-```
-
-### 2. Install dependencies
-
-Use the installation command appropriate for the project's technology stack.
-
-```bash
-# Example
-npm install
-```
-
-### 3. Configure environment variables
-
-If the application requires environment variables, create a `.env` file based on `.env.example`.
-
-```bash
-cp .env.example .env
-```
-
-Add the required configuration values to `.env`.
-
-**Do not commit `.env` or any API keys/secrets to GitHub.**
-
-### 4. Start the application
-
-```bash
-# Example
-npm start
-```
-
-The exact command may vary depending on the project configuration.
-
-## Output Format
-
-The application generates images at:
-
-**1200 × 628 pixels**
-
-This format is intended for use as a WordPress featured image.
-
-## Project Structure
-
-```text
-project/
-├── [source files]
-├── [assets]
-├── [configuration files]
-├── .gitignore
-├── .env.example
-└── README.md
-```
-
-*The structure above should be updated to reflect the final project structure.*
-
-## Use Case
-
-This project was created to solve a practical publishing requirement: preparing differently sized and potentially large images for consistent use across a news website.
-
-Rather than manually resizing and compressing each image, the tool provides a simple workflow for generating standardized, web-ready featured images.
-
-
+cd C:\Users\admin\.gemini\antigravity\scratch\imageshrink
+npm run dev
